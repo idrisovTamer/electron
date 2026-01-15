@@ -45,7 +45,7 @@ const generateOrders = (count: number): Order[] => {
 };
 
 export default function BigTablePage() {
-  const [rowCount, setRowCount] = useState(5000);
+  const [rowCount, setRowCount] = useState(15000);
   const [sortField, setSortField] = useState<keyof Order | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [filterStatus, setFilterStatus] = useState<string>('Все');
@@ -140,10 +140,13 @@ export default function BigTablePage() {
               value={rowCount}
               onChange={(e) => handleChangeRowCount(Number(e.target.value))}
             >
-              <option value={1000}>1,000</option>
-              <option value={5000}>5,000</option>
-              <option value={10000}>10,000</option>
-              <option value={20000}>20,000</option>
+              <option value={1000}>1,000 (20 стр.)</option>
+              <option value={5000}>5,000 (100 стр.)</option>
+              <option value={10000}>10,000 (200 стр.)</option>
+              <option value={15000}>15,000 (300 стр.)</option>
+              <option value={20000}>20,000 (400 стр.)</option>
+              <option value={30000}>30,000 (600 стр.)</option>
+              <option value={50000}>50,000 (1000 стр.)</option>
             </select>
           </label>
         </div>

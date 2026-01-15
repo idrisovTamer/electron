@@ -38,6 +38,27 @@ const tests: TestCard[] = [
     icon: '👨‍🍳',
     difficulty: 'extreme',
   },
+  {
+    title: 'TanStack Query',
+    description: 'API запросы, кеширование, параллельные и бесконечные запросы с React Query.',
+    path: '/tanstack',
+    icon: '⚡',
+    difficulty: 'high',
+  },
+  {
+    title: 'Сенсорная клавиатура',
+    description: 'Виртуальная клавиатура для ATOL. Русская, английская и цифровая раскладки.',
+    path: '/keyboard',
+    icon: '⌨️',
+    difficulty: 'medium',
+  },
+  {
+    title: 'Календарь и датапикер',
+    description: 'Выбор дат, диапазонов, события, множественные календари.',
+    path: '/calendar',
+    icon: '📅',
+    difficulty: 'medium',
+  },
 ];
 
 const getDifficultyColor = (difficulty: string): string => {

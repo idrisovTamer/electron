@@ -10,18 +10,23 @@
  */
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+// Настройка логов для POS системы ATOL OPTIMA v7
+log.transports.file.level = 'info';
+log.transports.file.maxSize = 5 * 1024 * 1024; // 5MB максимальный размер файла
+log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}';
+// Путь к логам: %LOCALAPPDATA%\MyPOSApp\logs
+
+// Фиксация GPU для стабильности на Embedded Windows (ATOL OPTIMA v7)
+// Предотвращает глюки GPU, черный экран и падения Chromium
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+
+// Auto-updater отключен для POS системы ATOL OPTIMA v7
+// На кассовых терминалах обновления обычно управляются вручную
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -74,7 +79,15 @@ const createWindow = async () => {
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
+    // POS режим: полноэкранный режим и скрытие меню
+    fullscreen: !isDebug, // Fullscreen только в production
+    kiosk: !isDebug, // Kiosk режим для предотвращения выхода кассира
+    autoHideMenuBar: true, // Скрыть меню бар
     webPreferences: {
+      // Безопасность: Context Isolation (стандарт Electron 31+)
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -82,6 +95,25 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+
+  // Блокировка DevTools в production (критично для POS безопасности)
+  if (!isDebug) {
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      // Блокируем F12 и Ctrl+Shift+I
+      if (
+        input.key === 'F12' ||
+        (input.control && input.shift && input.key === 'I')
+      ) {
+        event.preventDefault();
+        log.warn('Попытка открытия DevTools заблокирована');
+      }
+    });
+
+    // Отключаем контекстное меню (правую кнопку мыши)
+    mainWindow.webContents.on('context-menu', (event) => {
+      event.preventDefault();
+    });
+  }
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -91,6 +123,17 @@ const createWindow = async () => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+    }
+    
+    log.info('MyPOSApp запущен успешно');
+  });
+
+  // Защита от закрытия приложения кассиром (Alt+F4, крестик)
+  mainWindow.on('close', (event) => {
+    if (!isDebug) {
+      event.preventDefault();
+      log.warn('Попытка закрыть приложение заблокирована. Закрытие доступно только администратору.');
+      // Можно добавить диалог с паролем администратора
     }
   });
 
@@ -107,9 +150,8 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
+  // Auto-updater отключен для POS системы (не требуется на ATOL OPTIMA v7)
+  // new AppUpdater();
 };
 
 /**
@@ -127,7 +169,26 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    // Автозапуск при старте Windows (для основной кассы)
+    if (app.isPackaged) {
+      app.setLoginItemSettings({
+        openAtLogin: true,
+        path: app.getPath('exe'),
+      });
+      log.info('Автозапуск включен');
+    }
+
     createWindow();
+
+    // Watchdog: проверка стабильности каждые 10 секунд (критично для 24/7)
+    setInterval(() => {
+      if (mainWindow && mainWindow.isDestroyed()) {
+        log.error('Renderer crashed, restarting app');
+        app.relaunch();
+        app.exit(0);
+      }
+    }, 10_000);
+
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
