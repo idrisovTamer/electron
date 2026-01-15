@@ -2,6 +2,28 @@
 
 <br>
 
+# 🚀 MyPOSApp - POS Stress Test для ATOL OPTIMA v7
+
+**Production-ready Electron приложение для тестирования производительности кассовых терминалов ATOL OPTIMA v7**
+
+## ✨ Особенности
+
+- ✅ **Windows x64 only** - оптимизировано для ATOL
+- ✅ **Electron 31.7.7** - стабильная версия для Embedded Windows
+- ✅ **Kiosk/Fullscreen режим** - полноэкранный POS режим
+- ✅ **Стресс-тесты** - таблицы до 50K строк, сложные вычисления, Canvas анимации
+- ✅ **Безопасность** - Context Isolation, блокировка DevTools, защита от закрытия
+- ✅ **24/7 стабильность** - Watchdog, GPU фиксация, логирование с ротацией
+- ✅ **Автозапуск** - запускается при старте Windows
+
+## 📚 Документация
+
+- **[📖 Инструкция по развертыванию на ATOL OPTIMA v7](ATOL_DEPLOYMENT.md)** - подробное руководство по установке и тестированию
+- **[🔧 Устранение неполадок](ATOL_DEPLOYMENT.md#устранение-неполадок)** - решение типовых проблем
+- **[🎯 Тестирование функционала](ATOL_DEPLOYMENT.md#тестирование-функционала)** - чек-лист проверок
+
+<br>
+
 <p>
   Electron React Boilerplate uses <a href="https://electron.atom.io/">Electron</a>, <a href="https://facebook.github.io/react/">React</a>, <a href="https://github.com/reactjs/react-router">React Router</a>, <a href="https://webpack.js.org/">Webpack</a> and <a href="https://www.npmjs.com/package/react-refresh">React Fast Refresh</a>.
 </p>
@@ -19,6 +41,28 @@
 [![StackOverflow][stackoverflow-img]][stackoverflow-url]
 
 </div>
+
+## 🚀 Быстрый старт для ATOL OPTIMA v7
+
+### Сборка Windows installer:
+
+```bash
+# Клонируйте репозиторий
+git clone https://github.com/idrisovTamer/electron.git
+cd electron-react-boilerplate
+
+# Установите зависимости
+npm install
+
+# Соберите для Windows x64
+npm run package:win
+```
+
+**Результат:** `dist/MyPOSApp-Setup.exe` (~150-180 MB)
+
+**Далее:** См. [📖 Инструкцию по развертыванию](ATOL_DEPLOYMENT.md)
+
+---
 
 ## Install
 
